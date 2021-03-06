@@ -20,6 +20,16 @@ class TreeView : public QTreeView {
 	void connector_ready_cb();
 
  protected:
+	std::map<std::string, QKeySequence> keys = {
+		{"SetRoot", QKeySequence("Shift+R")},
+		{"Close", QKeySequence("Ctrl+B")},
+		{"Switch", QKeySequence("Tab")},
+		{"GoUp", QKeySequence("Shift+U")},
+		{"CmdLine", QKeySequence("Shift+:")},
+		{"OpenE", QKeySequence("Enter")},
+		{"OpenR", QKeySequence("Return")}
+	};
+
 	void keyPressEvent(QKeyEvent *event);
 	QFileSystemModel *model;
 	NeovimConnector *m_nvim;

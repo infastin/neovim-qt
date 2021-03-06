@@ -42,10 +42,12 @@ void TreeView::keyPressEvent(QKeyEvent *event) {
 	
 	if (currentIndex.isValid())
 	{
-		if ((event->key() == Qt::Key_Enter) || (event->key() == Qt::Key_Return)) {
+		QKeySequence currentK = QKeySequence(event->modifiers()+event->key());
+
+		if (keys["OpenE"].matches(currentK) || keys["OpenR"].matches(currentK)) {
 			QFileInfo info = model->fileInfo(currentIndex);
 
-			if (info.isFile() && info.isReadable()) 
+			if (info.isFile() && info.isReadable())
 				open(currentIndex);
 			else if (info.isDir()) {
 				if (isExpanded(currentIndex))
@@ -53,26 +55,28 @@ void TreeView::keyPressEvent(QKeyEvent *event) {
 				else 
 					expand(currentIndex);
 			}
-		} else if ((event->modifiers() & Qt::ShiftModifier)) {
-			if (event->key() == Qt::Key_R) {
-				QFileInfo file = model->fileInfo(currentIndex);
-				QString dir = file.absoluteFilePath();
-
-				setDirectory(dir, 1);	
-			} else if (event->key() == Qt::Key_U) {
-				QDir tmp = QDir(QDir::current());
-				tmp.cdUp();
-				QString dir = tmp.path();
-
-				setDirectory(dir, 1);
-			} else if (event->key() == Qt::Key_Colon) {
-				focusNextChild();
-				m_nvim->neovimObject()->vim_feedkeys(":", "m", true);
-			}
-		} else if (event->key() == Qt::Key_Tab)
+		} else if (keys["Switch"].matches(currentK)) {
 			focusNextChild();
-		else
+		} else if (keys["Close"].matches(currentK)) {
+			focusNextChild();
+			hide();
+		} else if (keys["CmdLine"].matches(currentK)) {
+			focusNextChild();
+			m_nvim->neovimObject()->vim_feedkeys(":", "m", true);		
+		} else if (keys["SetRoot"].matches(currentK)) {
+			QFileInfo file = model->fileInfo(currentIndex);
+			QString dir = file.absoluteFilePath();
+
+			setDirectory(dir, 1);	
+		} else if (keys["GoUp"].matches(currentK)) {
+			QDir tmp = QDir(QDir::current());
+			tmp.cdUp();
+			QString dir = tmp.path();
+
+			setDirectory(dir, 1);
+		} else {
 			QTreeView::keyPressEvent(event);
+		}
 	}
 }
 
@@ -113,9 +117,30 @@ void TreeView::handleNeovimNotification(const QByteArray &name,
 				show();
 				focusNextChild();
 			}
-		} else if (action == "Switch")
+		} else if (action == "Switch") {
 			focusNextChild();
-		else if (action == "ShowHide" && args.size() == 3) {
+		} else if (action == "SetKey") {
+			QByteArray key = args.at(2)
+				.toString()
+				.remove(QChar(' '))
+				.remove(QChar('\''))
+				.remove(QChar('\"'))
+				.toUtf8();
+			QString value = args.at(3)
+				.toString()
+				.remove(QChar(' '))
+				.remove(QChar('\''))
+				.remove(QChar('\"'));
+
+			if (key == "Switch")
+				keys["Switch"] = QKeySequence(value);
+			else if (key == "Close")
+				keys["Close"] = QKeySequence(value);
+			else if (key == "SetRoot")
+				keys["SetRoot"] = QKeySequence(value);
+			else if (key == "GoUp")
+				keys["GoUp"] = QKeySequence(value);
+		} else if (action == "ShowHide" && args.size() == 3) {
 			if(args.at(2).toBool()) {
 				show();
 				focusNextChild();

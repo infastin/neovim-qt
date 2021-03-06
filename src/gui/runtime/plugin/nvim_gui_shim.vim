@@ -235,6 +235,13 @@ endfunction
 
 autocmd CursorMoved,CursorMovedI,VimResized * call <SID>GuiCursorMoved()
 
+" Specify TreeView keys
+function! s:GuiTreeViewSetKey(key, value) abort
+	call rpcnotify(0, 'Gui', 'TreeView', 'SetKey', a:key, a:value)
+endfunction
+
+command! -nargs=* GuiTreeviewSetKey call s:GuiTreeViewSetKey(<f-args>)
+
 " Show/Hide the Gui ScrollBar
 function! s:GuiScrollBar(enable) abort
 	call rpcnotify(0, 'Gui', 'SetScrollBarVisible', a:enable)

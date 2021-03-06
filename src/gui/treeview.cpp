@@ -42,57 +42,39 @@ void TreeView::keyPressEvent(QKeyEvent *event) {
 	
 	if (currentIndex.isValid())
 	{
-		if ((event->key() == Qt::Key_Enter) || (event->key() == Qt::Key_Return))
-		{
+		if ((event->key() == Qt::Key_Enter) || (event->key() == Qt::Key_Return)) {
 			QFileInfo info = model->fileInfo(currentIndex);
 
 			if (info.isFile() && info.isReadable()) 
-			{
 				open(currentIndex);
-			} 
-			else if (info.isDir()) 
-			{
-				if (this->isExpanded(currentIndex))
-				{
-					this->collapse(currentIndex);
-				} 
+			else if (info.isDir()) {
+				if (isExpanded(currentIndex))
+					collapse(currentIndex);
 				else 
-				{
-					this->expand(currentIndex);
-				}
+					expand(currentIndex);
 			}
 		}
 		else if ((event->modifiers() & Qt::ShiftModifier))
 		{
-			if (event->key() == Qt::Key_R) 
-			{
+			if (event->key() == Qt::Key_R) {
 				QFileInfo file = model->fileInfo(currentIndex);
 				QString dir = file.absoluteFilePath();
 
 				setDirectory(dir, 1);	
-			}
-			else if (event->key() == Qt::Key_U) 
-			{
+			} else if (event->key() == Qt::Key_U) {
 				QDir tmp = QDir(QDir::current());
 				tmp.cdUp();
 				QString dir = tmp.path();
 
 				setDirectory(dir, 1);
-			}
-			else if (event->key() == Qt::Key_Colon)
-			{
+			} else if (event->key() == Qt::Key_Colon) {
 				focusNextChild();
 				m_nvim->neovimObject()->vim_feedkeys(":", "m", true);
 			}
-		}
-		else if (event->key() == Qt::Key_Tab)
-		{
+		} else if (event->key() == Qt::Key_Tab)
 			focusNextChild();
-		}
 		else
-		{
 			QTreeView::keyPressEvent(event);
-		}
 	}
 }
 
@@ -133,15 +115,14 @@ void TreeView::handleNeovimNotification(const QByteArray &name,
 				show();
 				focusNextChild();
 			}
-		} else if (action == "Switch") {
+		} else if (action == "Switch")
 			focusNextChild();
-		} else if (action == "ShowHide" && args.size() == 3) {
+		else if (action == "ShowHide" && args.size() == 3) {
 			if(args.at(2).toBool()) {
 				show();
 				focusNextChild();
-			} else {
+			} else
 				hide();
-			}
 		}
 	}
 }

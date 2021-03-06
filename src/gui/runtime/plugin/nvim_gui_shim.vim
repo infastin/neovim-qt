@@ -216,8 +216,8 @@ function! s:TreeViewSwitch()
 	call rpcnotify(0, 'Gui', 'TreeView', 'Switch')
 endfunction
 
-command! GuiTreeViewSwitch call <SID>TreeViewSwitch()
-noremap <script> <Plug>GuiTreeViewSwitch :call <SID>TreeViewSwitch()
+command! GuiTreeviewSwitch call <SID>TreeViewSwitch()
+noremap <script> <Plug>GuiTreeviewSwitch :call <SID>TreeViewSwitch()
 anoremenu <script> Gui.Treeview.Sw :call <SID>TreeViewSwitch()
 
 " Show Right-Click ContextMenu

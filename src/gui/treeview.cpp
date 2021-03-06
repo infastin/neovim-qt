@@ -5,7 +5,6 @@
 #include <QKeyEvent>
 #include <QProcess>
 #include <QStandardPaths>
-#include <qnamespace.h>
 
 static const int MAX_COLUMNS_ON_INIT = 10;
 

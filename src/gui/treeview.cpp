@@ -53,9 +53,7 @@ void TreeView::keyPressEvent(QKeyEvent *event) {
 				else 
 					expand(currentIndex);
 			}
-		}
-		else if ((event->modifiers() & Qt::ShiftModifier))
-		{
+		} else if ((event->modifiers() & Qt::ShiftModifier)) {
 			if (event->key() == Qt::Key_R) {
 				QFileInfo file = model->fileInfo(currentIndex);
 				QString dir = file.absoluteFilePath();

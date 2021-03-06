@@ -20,6 +20,7 @@ class TreeView : public QTreeView {
 	void connector_ready_cb();
 
  protected:
+	void keyPressEvent(QKeyEvent *event);
 	QFileSystemModel *model;
 	NeovimConnector *m_nvim;
 };

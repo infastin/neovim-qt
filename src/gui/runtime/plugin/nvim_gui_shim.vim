@@ -209,7 +209,16 @@ endfunction
 
 command! GuiTreeviewToggle call <SID>TreeViewToggle()
 noremap <script> <Plug>GuiTreeviewToggle :call <SID>TreeViewToggle()
-anoremenu <script> Gui.Treeview.Toggle :call <SID>TreeViewShowToggle()
+anoremenu <script> Gui.Treeview.Toggle :call <SID>TreeViewToggle()
+
+" Notifies the TreeView widget of a Switch event
+function! s:TreeViewSwitch()
+	call rpcnotify(0, 'Gui', 'TreeView', 'Switch')
+endfunction
+
+command! GuiTreeViewSwitch call <SID>TreeViewSwitch()
+noremap <script> <Plug>GuiTreeViewSwitch :call <SID>TreeViewSwitch()
+anoremenu <script> Gui.Treeview.Sw :call <SID>TreeViewSwitch()
 
 " Show Right-Click ContextMenu
 function GuiShowContextMenu() range

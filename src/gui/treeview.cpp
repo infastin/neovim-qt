@@ -5,6 +5,7 @@
 #include <QKeyEvent>
 #include <QProcess>
 #include <QStandardPaths>
+#include <qnamespace.h>
 
 static const int MAX_COLUMNS_ON_INIT = 10;
 
@@ -37,6 +38,65 @@ void TreeView::connector_ready_cb() {
 	m_nvim->neovimObject()->vim_subscribe("Gui");
 }
 
+void TreeView::keyPressEvent(QKeyEvent *event) {
+	QModelIndex currentIndex = TreeView::currentIndex();
+	
+	if (currentIndex.isValid())
+	{
+		if ((event->key() == Qt::Key_Enter) || (event->key() == Qt::Key_Return))
+		{
+			QFileInfo info = model->fileInfo(currentIndex);
+
+			if (info.isFile() && info.isReadable()) 
+			{
+				open(currentIndex);
+			} 
+			else if (info.isDir()) 
+			{
+				if (this->isExpanded(currentIndex))
+				{
+					this->collapse(currentIndex);
+				} 
+				else 
+				{
+					this->expand(currentIndex);
+				}
+			}
+		}
+		else if ((event->modifiers() & Qt::ShiftModifier))
+		{
+			if (event->key() == Qt::Key_R) 
+			{
+				QFileInfo file = model->fileInfo(currentIndex);
+				QString dir = file.absoluteFilePath();
+
+				setDirectory(dir, 1);	
+			}
+			else if (event->key() == Qt::Key_U) 
+			{
+				QDir tmp = QDir(QDir::current());
+				tmp.cdUp();
+				QString dir = tmp.path();
+
+				setDirectory(dir, 1);
+			}
+			else if (event->key() == Qt::Key_Colon)
+			{
+				focusNextChild();
+				m_nvim->neovimObject()->vim_feedkeys(":", "m", true);
+			}
+		}
+		else if (event->key() == Qt::Key_Tab)
+		{
+			focusNextChild();
+		}
+		else
+		{
+			QTreeView::keyPressEvent(event);
+		}
+	}
+}
+
 void TreeView::open(const QModelIndex &index) {
 	QFileInfo info = model->fileInfo(index);
 	if (info.isFile() && info.isReadable()) {
@@ -44,7 +104,7 @@ void TreeView::open(const QModelIndex &index) {
 		args << info.filePath();
 		m_nvim->neovimObject()->vim_call_function("GuiDrop", args);
 	}
-	focusNextChild();
+	// focusNextChild();
 }
 
 void TreeView::setDirectory(const QString &dir, bool notify) {
@@ -70,10 +130,19 @@ void TreeView::handleNeovimNotification(const QByteArray &name,
 		if (action == "Toggle") {
 			if (isVisible())
 				hide();
-			else
+			else {
 				show();
+				focusNextChild();
+			}
+		} else if (action == "Switch") {
+			focusNextChild();
 		} else if (action == "ShowHide" && args.size() == 3) {
-			args.at(2).toBool() ? show() : hide();
+			if(args.at(2).toBool()) {
+				show();
+				focusNextChild();
+			} else {
+				hide();
+			}
 		}
 	}
 }
